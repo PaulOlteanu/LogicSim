@@ -5,39 +5,44 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Make these enums
-typedef struct pinRow {
-    int type; // 0: out. 1: in
+typedef enum PIN_TYPE {IN, OUT} PIN_TYPE;
+typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
+
+typedef struct pin {
+    PIN_TYPE type;
     int number; // 1-14
     int net; // Any number
-} pinRow;
+} pin;
 
-typedef struct netRow {
+typedef struct net {
     int net; // Any number
-    int type; // 0: and. 1: or. 2: xor. 3: nand
-} netRow;
+    NET_TYPE type;
+} net;
 
-int readPins(char *filename, pinRow **pinData, int *numRows) {
-    *numRows = 0;
+int numberOfRows(FILE *file) {
+    int numRows = 0;
+    while(!feof(file)) {
+        char ch = fgetc(file);
+        if(ch == '\n') {
+            numRows++;
+        }
+    }
+    rewind(file);
 
-    const int BUFFER_SIZE = 2048;
+    return numRows;
+}
 
+int readPins(char *filename, pin **pins, int *numRows) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         return -1;
     }
 
-    while(!feof(file)) {
-        char ch = fgetc(file);
-        if(ch == '\n') {
-            (*numRows)++;
-        }
-    }
+    *numRows = numberOfRows(file);
+    *pins = malloc((*numRows) * sizeof(pin));
 
-    rewind(file);
-    
-    *pinData = malloc((*numRows) * sizeof(pinRow));
-
+    const int BUFFER_SIZE = 2048;
+    char buffer[BUFFER_SIZE];
     char typeString[BUFFER_SIZE];
     char numberString[BUFFER_SIZE];
     char netString[BUFFER_SIZE];
@@ -49,13 +54,14 @@ int readPins(char *filename, pinRow **pinData, int *numRows) {
     int targetNumber = 0;
     int targetIndex = 0;
 
-    char buffer[BUFFER_SIZE];
-
     int rowNumber = 0;
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
-        rowNumber++;
-        for(int i = 0; i < strlen(buffer) - 1; i++) {
-            if (buffer[i] == ' ' || buffer[i] == '\t') {
+        targetNumber = 0;
+        targetIndex = 0;
+        for(int i = 0; i < strlen(buffer); i++) {
+            if (buffer[i] == '\n') {
+                break;
+            } else if (buffer[i] == ' ' || buffer[i] == '\t') {
                 continue;
             } else if (buffer[i] == ',') {
                 targetIndex++;
@@ -63,21 +69,86 @@ int readPins(char *filename, pinRow **pinData, int *numRows) {
 
                 targetNumber++;
                 if (targetNumber > 2) {
+                    fclose(file);
                     return -1;
                 }
 
                 targetIndex = 0;
             } else if (buffer[i] < '0' || buffer[i] > '9') {
+                fclose(file);
                 return -1;
             } else {
                 target[targetNumber][targetIndex] = buffer[i];
             }
         }
 
-        (*pinData)[rowNumber - 1].type = atoi(typeString); 
-        (*pinData)[rowNumber - 1].number = atoi(numberString); 
-        (*pinData)[rowNumber - 1].net = atoi(netString); 
+        // TODO: Best practices is to initialize these with something
+        (*pins)[rowNumber].type = atoi(typeString); 
+        (*pins)[rowNumber].number = atoi(numberString); 
+        (*pins)[rowNumber].net = atoi(netString); 
+
+        rowNumber++;
     }
+
+    fclose(file);
+    return 0;
+}
+
+int readNets(char *filename, net **nets, int *numRows) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        return -1;
+    }
+
+    *numRows = numberOfRows(file);
+    *nets = malloc((*numRows) * sizeof(net));
+
+    const int BUFFER_SIZE = 2048;
+    char buffer[BUFFER_SIZE];
+    char netString[BUFFER_SIZE];
+    char typeString[BUFFER_SIZE];
+
+    char *target[2];
+    target[0] = netString;
+    target[1] = typeString;
+    int targetNumber = 0;
+    int targetIndex = 0;
+
+    int rowNumber = 0;
+    while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+        targetNumber = 0;
+        targetIndex = 0;
+        for(int i = 0; i < strlen(buffer); i++) {
+            if (buffer[i] == '\n') {
+                break;
+            } else if (buffer[i] == ' ' || buffer[i] == '\t') {
+                continue;
+            } else if (buffer[i] == ',') {
+                targetIndex++;
+                target[targetNumber][targetIndex] = '\0';
+
+                targetNumber++;
+                if (targetNumber > 1) {
+                    fclose(file);
+                    return -1;
+                }
+
+                targetIndex = 0;
+            } else if (buffer[i] < '0' || buffer[i] > '9') {
+                fclose(file);
+                return -1;
+            } else {
+                target[targetNumber][targetIndex] = buffer[i];
+            }
+        }
+
+        // TODO: Best practices is to initialize these with something
+        (*nets)[rowNumber].net = atoi(netString); 
+        (*nets)[rowNumber].type = atoi(typeString);
+        rowNumber++;
+    }
+
+    fclose(file);
     return 0;
 }
 
