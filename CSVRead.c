@@ -9,23 +9,25 @@ typedef enum PIN_TYPE {IN, OUT} PIN_TYPE;
 typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
 
 typedef struct pin {
-    PIN_TYPE type;
     int number; // 1-14
-    int net; // Any number
+    PIN_TYPE type;
+    int netNumber; // Any number
 } pin;
 
 typedef struct net {
-    int net; // Any number
+    int number; // Any number
     NET_TYPE type;
     pin *pins;
     int numPins;
 } net;
 
 int numberOfRows(FILE *file) {
+    const int BUFFER_SIZE = 2048;
+    char buffer[BUFFER_SIZE];
+
     int numRows = 0;
-    while(!feof(file)) {
-        char ch = fgetc(file);
-        if(ch == '\n') {
+    while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+        if (!(buffer[0] == '\n' || (strlen(buffer) > 2 && buffer[0] == '/' && buffer[1] == '/'))) {
             numRows++;
         }
     }
@@ -62,9 +64,13 @@ int readPins(char *filename, pin **pins, int *numRows) {
 
     int rowNumber = 0;
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+        if (buffer[0] == '\n' || (strlen(buffer) > 2 && buffer[0] == '/' && buffer[1] == '/')) {
+            continue;
+        } 
         targetNumber = 0;
         targetIndex = 0;
 
+        // Todo: Check for whitespace in the middle of a number
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
@@ -101,7 +107,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
             return -1;
         }
         (*pins)[rowNumber].number = atoi(numberString);
-        (*pins)[rowNumber].net = atoi(netString);
+        (*pins)[rowNumber].netNumber = atoi(netString);
 
         rowNumber++;
     }
@@ -179,7 +185,7 @@ int readNets(char *filename, net **nets, int *numRows) {
             default:
                 return -1;
         }
-        (*nets)[rowNumber].net = atoi(netString);
+        (*nets)[rowNumber].number = atoi(netString);
         rowNumber++;
     }
 
@@ -193,14 +199,14 @@ int initNets(net *nets, pin *pins, int numPins, int numNets) {
         nets[i].pins = NULL;
     }
 
-    int net, found;
+    int netNumber, found;
 
     for (int i = 0; i < numPins; i++) {
-        net = pins[i].net;
+        netNumber = pins[i].netNumber;
         found = 0;
 
         for (int j = 0; j < numNets; j++) {
-            if (nets[j].net == net) {
+            if (nets[j].number == netNumber) {
                 found = 1;
 
                 nets[j].numPins++;
@@ -232,10 +238,12 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
     int pinStatus = readPins(pinFile, &pins, numPins);
     int netStatus = readNets(netFile, nets, numNets);
     int initStatus = initNets(*nets, pins, *numPins, *numNets);
+    // Todo: add different error codes for different errors
     if (pinStatus || netStatus || initStatus) {
         free(pins);
         return -1;
     }
+    // Todo: check for nets without pin3
 
     free(pins);
     return 0;
