@@ -29,8 +29,8 @@ int numberOfRows(FILE *file) {
             numRows++;
         }
     }
-    rewind(file);
 
+    rewind(file);
     return numRows;
 }
 
@@ -48,11 +48,10 @@ int readPins(char *filename, pin **pins, int *numRows) {
     char typeString[BUFFER_SIZE];
     char numberString[BUFFER_SIZE];
     char netString[BUFFER_SIZE];
-
-    memset(buffer, 0, sizeof buffer);
-    memset(typeString, 0, sizeof typeString);
-    memset(numberString, 0, sizeof numberString);
-    memset(netString, 0, sizeof netString);
+    memset(buffer, 0, sizeof(buffer));
+    memset(typeString, 0, sizeof(typeString));
+    memset(numberString, 0, sizeof(numberString));
+    memset(netString, 0, sizeof(netString));
 
     char *target[3];
     target[0] = typeString;
@@ -65,6 +64,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
         targetNumber = 0;
         targetIndex = 0;
+
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
@@ -123,9 +123,9 @@ int readNets(char *filename, net **nets, int *numRows) {
     char buffer[BUFFER_SIZE];
     char netString[BUFFER_SIZE];
     char typeString[BUFFER_SIZE];
-    memset(buffer, 0, sizeof buffer);
-    memset(netString, 0, sizeof netString);
-    memset(typeString, 0, sizeof typeString);
+    memset(buffer, 0, sizeof(buffer));
+    memset(netString, 0, sizeof(netString));
+    memset(typeString, 0, sizeof(typeString));
 
     char *target[2];
     target[0] = netString;
@@ -137,6 +137,7 @@ int readNets(char *filename, net **nets, int *numRows) {
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
         targetNumber = 0;
         targetIndex = 0;
+
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
@@ -192,15 +193,16 @@ int initNets(net *nets, pin *pins, int numPins, int numNets) {
         nets[i].pins = NULL;
     }
 
-    int found;
+    int net, found;
 
     for (int i = 0; i < numPins; i++) {
-        int net = pins[i].net;
+        net = pins[i].net;
         found = 0;
 
         for (int j = 0; j < numNets; j++) {
             if (nets[j].net == net) {
                 found = 1;
+
                 nets[j].numPins++;
                 if (nets[j].numPins > 1) {
                     pin *temp = nets[j].pins;
@@ -209,7 +211,7 @@ int initNets(net *nets, pin *pins, int numPins, int numNets) {
                         nets[j].pins[k] = temp[k];
                     }
                     free(temp);
-                    nets[j].pins[numPins - 1] = pins[i];
+                    nets[j].pins[nets[j].numPins - 1] = pins[i];
                 } else {
                     nets[j].pins = malloc(nets[j].numPins * sizeof(pin));
                     nets[j].pins[0] = pins[i];
@@ -221,6 +223,7 @@ int initNets(net *nets, pin *pins, int numPins, int numNets) {
             return -1;
         }
     }
+
     return 0;
 }
 
@@ -233,6 +236,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
         free(pins);
         return -1;
     }
+
     free(pins);
     return 0;
 }
