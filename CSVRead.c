@@ -91,13 +91,13 @@ int readPins(char *filename, pin **pins, int *numRows) {
 
         int pinType = atoi(typeString);
         switch (pinType) {
-            case 0:
+        case 0:
             (*pins)[rowNumber].type = IN;
             break;
-            case 1:
+        case 1:
             (*pins)[rowNumber].type = OUT;
             break;
-            default:
+        default:
             return -1;
         }
         (*pins)[rowNumber].number = atoi(numberString);
@@ -165,19 +165,19 @@ int readNets(char *filename, net **nets, int *numRows) {
         int netType = atoi(typeString);
         switch (netType) {
             case 1:
-            (*nets)[rowNumber].type = AND;
-            break;
+                (*nets)[rowNumber].type = AND;
+                break;
             case 2:
-            (*nets)[rowNumber].type = OR;
-            break;
+                (*nets)[rowNumber].type = OR;
+                break;
             case 3:
-            (*nets)[rowNumber].type = XOR;
-            break;
+                (*nets)[rowNumber].type = XOR;
+                break;
             case 4:
-            (*nets)[rowNumber].type = NAND;
-            break;
+                (*nets)[rowNumber].type = NAND;
+                break;
             default:
-            return -1;
+                return -1;
         }
         (*nets)[rowNumber].net = atoi(netString);
         rowNumber++;
