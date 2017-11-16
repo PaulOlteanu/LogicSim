@@ -3,14 +3,29 @@
 #include "CSVRead.c"
 
 int main() {
-    char *filename = "pinTest.csv";
+    char *pinFile = "pinTest.csv";
+    char *netFile = "netTest.csv";
     pin *pins;
-    int numPins = 1;
-    int pinStatus = readPins(filename, &pins, &numPins);
-    printf("Status: %d\n", pinStatus);
-    printf("Rows: %d\n", numPins);
-    printf("Pin Type: %d\n", pins[0].type);
-    printf("Pin Type: %d\n", pins[1].type);
+    net *nets;
+    int numPins, numNets;
+    int pinStatus = readPins(pinFile, &pins, &numPins);
+    int netStatus = readNets(netFile, &nets, &numNets);
+    if (pinStatus || netStatus) {
+        free(pins);
+        free(nets);
+        return -1;
+    }
+    int initStatus = initNets(nets, pins, numPins, numNets);
+    if (initStatus) {
+        printf("HERE\n");
+        free(pins);
+        free(nets);
+        return -1;
+    }
     free(pins);
+    for (int i = 0; i < numNets; i++) {
+        free(nets[i].pins);
+    }
+    free(nets);
     return  0;    
 }
