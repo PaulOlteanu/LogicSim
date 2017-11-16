@@ -89,20 +89,19 @@ int readPins(char *filename, pin **pins, int *numRows) {
             }
         }
 
-        // TODO: Best practices is to initialize these with something
         int pinType = atoi(typeString);
         switch (pinType) {
             case 0:
-            (*pins)[rowNumber].type = IN; 
+            (*pins)[rowNumber].type = IN;
             break;
             case 1:
-            (*pins)[rowNumber].type = OUT; 
+            (*pins)[rowNumber].type = OUT;
             break;
             default:
             return -1;
         }
-        (*pins)[rowNumber].number = atoi(numberString); 
-        (*pins)[rowNumber].net = atoi(netString); 
+        (*pins)[rowNumber].number = atoi(numberString);
+        (*pins)[rowNumber].net = atoi(netString);
 
         rowNumber++;
     }
@@ -162,25 +161,24 @@ int readNets(char *filename, net **nets, int *numRows) {
             }
         }
 
-        // TODO: Best practices is to initialize these with something
         int netType = atoi(typeString);
         switch (netType) {
             case 1:
-            (*nets)[rowNumber].type = AND; 
+            (*nets)[rowNumber].type = AND;
             break;
             case 2:
-            (*nets)[rowNumber].type = OR; 
+            (*nets)[rowNumber].type = OR;
             break;
             case 3:
-            (*nets)[rowNumber].type = XOR; 
+            (*nets)[rowNumber].type = XOR;
             break;
             case 4:
-            (*nets)[rowNumber].type = NAND; 
+            (*nets)[rowNumber].type = NAND;
             break;
             default:
             return -1;
         }
-        (*nets)[rowNumber].net = atoi(netString); 
+        (*nets)[rowNumber].net = atoi(netString);
         rowNumber++;
     }
 
@@ -220,11 +218,22 @@ int initNets(net *nets, pin *pins, int numPins, int numNets) {
         }
 
         if (!found) {
-            printf("FOUND: %d", found);
             return -1;
         }
     }
     return 0;
 }
 
+int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **nets) {
+    pin *pins;
+    int pinStatus = readPins(pinFile, &pins, numPins);
+    int netStatus = readNets(netFile, nets, numNets);
+    int initStatus = initNets(*nets, pins, *numPins, *numNets);
+    if (pinStatus || netStatus || initStatus) {
+        free(pins);
+        return -1;
+    }
+    free(pins);
+    return 0;
+}
 #endif
