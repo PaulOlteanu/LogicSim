@@ -5,21 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum PIN_TYPE {IN, OUT} PIN_TYPE;
-typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
-
-typedef struct pin {
-    int number; // 1-14
-    PIN_TYPE type;
-    int netNumber; // Any number
-} pin;
-
-typedef struct net {
-    int number; // Any number
-    NET_TYPE type;
-    pin *pins;
-    int numPins;
-} net;
+#include "PinData.h"
 
 int numberOfRows(FILE *file) {
     const int BUFFER_SIZE = 2048;
@@ -66,11 +52,11 @@ int readPins(char *filename, pin **pins, int *numRows) {
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
         if (buffer[0] == '\n' || (strlen(buffer) > 2 && buffer[0] == '/' && buffer[1] == '/')) {
             continue;
-        } 
+        }
         targetNumber = 0;
         targetIndex = 0;
 
-        // Todo: Check for whitespace in the middle of a number
+        // ToDo: Check for whitespace in the middle of a number
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
@@ -144,6 +130,7 @@ int readNets(char *filename, net **nets, int *numRows) {
         targetNumber = 0;
         targetIndex = 0;
 
+        // ToDo: Check for a space or tab in the middle of a number
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
@@ -243,7 +230,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
         free(pins);
         return -1;
     }
-    // Todo: check for nets without pin3
+    // Todo: check for nets without pins
 
     free(pins);
     return 0;

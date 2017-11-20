@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "CSVRead.c"
+#include "PinData.h"
 
 int main() {
     char *pinFile = "pinTest.csv";
