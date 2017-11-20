@@ -1,5 +1,5 @@
-#ifndef PINDATA_H_INCLUDE
-#define PINDATA_H_INCLUDE
+#ifndef PIN_C_INCLUDE
+#define PIN_C_INCLUDE
 
 typedef enum PIN_TYPE {IN, OUT} PIN_TYPE;
 typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
@@ -17,4 +17,8 @@ typedef struct net {
     int numPins;
 } net;
 
+int pinState(pin *pinToCheck) {
+    return 0;
+    // return read(pinToCheck.number)
+}
 #endif

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "PinData.h"
+#include "Pin.c"
 
 int numberOfRows(FILE *file) {
     const int BUFFER_SIZE = 2048;
