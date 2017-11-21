@@ -196,6 +196,11 @@ int readNets(char *filename, net **nets, int *numRows) {
                 return -1;
         }
         (*nets)[rowNumber].number = atoi(netString);
+
+        memset(buffer, 0, sizeof(buffer));
+        memset(netString, 0, sizeof(netString));
+        memset(typeString, 0, sizeof(typeString));
+
         rowNumber++;
     }
 
@@ -252,6 +257,12 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
     if (pinStatus || netStatus || initStatus) {
         free(pins);
         return -1;
+    }
+
+    for(int i = 0; i < *numNets; i++) {
+        if ((*nets)[i].numPins == 0) {
+            return -1;
+        }
     }
     // Todo: check for nets without pins
 

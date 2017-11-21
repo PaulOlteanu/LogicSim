@@ -11,7 +11,7 @@ typedef struct net {
     int numPins;
 } net;
 
-int simulateNet(net *netToSim, int numNets) {
+int simulateNet(net *netToSim) {
     switch (netToSim->type) {
         case AND:
             // If any are off, return false
