@@ -1,5 +1,5 @@
-#ifndef CSVREAD_C_INCLUDE
-#define CSVREAD_C_INCLUDE
+#ifndef FILEREAD_C_INCLUDE
+#define FILEREAD_C_INCLUDE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,6 +78,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
                 return -1;
             } else {
                 target[targetNumber][targetIndex] = buffer[i];
+                targetIndex++;
             }
         }
 
@@ -93,9 +94,27 @@ int readPins(char *filename, pin **pins, int *numRows) {
             return -1;
         }
         (*pins)[rowNumber].number = atoi(numberString);
+
+        // Check if the pin number is considered valid
+        int valid = 0;
+        for (int i = 0; i < NUM_VALID_PINS; i++) {
+            if ((*pins)[rowNumber].number == VALID_PINS[i]) {
+                valid = 1;
+                break;
+            }
+        }
+        if (!valid) {
+            return -1;
+        }
+
         (*pins)[rowNumber].netNumber = atoi(netString);
 
         rowNumber++;
+
+        memset(buffer, 0, sizeof(buffer));
+        memset(typeString, 0, sizeof(typeString));
+        memset(numberString, 0, sizeof(numberString));
+        memset(netString, 0, sizeof(netString));
     }
 
     fclose(file);
@@ -127,6 +146,9 @@ int readNets(char *filename, net **nets, int *numRows) {
 
     int rowNumber = 0;
     while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+        if (buffer[0] == '\n' || (strlen(buffer) > 2 && buffer[0] == '/' && buffer[1] == '/')) {
+            continue;
+        }
         targetNumber = 0;
         targetIndex = 0;
 

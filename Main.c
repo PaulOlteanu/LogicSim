@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "CSVRead.c"
+#include "FileRead.c"
 #include "Pin.c"
 
 int main() {
@@ -11,6 +11,9 @@ int main() {
     int status = initialize(pinFile, netFile, &numPins, &numNets, &nets);
     if (status) {
         printf("Error reading file\n");
+        for (int i = 0; i < numNets; i++) {
+            free(nets[i].pins);
+        }
         free(nets);
         return -1;
     }
