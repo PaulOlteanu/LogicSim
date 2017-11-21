@@ -2,6 +2,7 @@
 
 #include "FileRead.c"
 #include "Pin.c"
+#include "Net.c"
 
 int main() {
     char *pinFile = "pinTest.csv";

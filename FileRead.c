@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Net.c"
 #include "Pin.c"
 
 int numberOfRows(FILE *file) {

@@ -3,6 +3,14 @@
 
 #include "Pin.c"
 
+typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
+typedef struct net {
+    int number; // Any number
+    NET_TYPE type;
+    pin *pins;
+    int numPins;
+} net;
+
 int simulateNet(net *netToSim, int numNets) {
     switch (netToSim->type) {
         case AND:
@@ -23,7 +31,7 @@ int simulateNet(net *netToSim, int numNets) {
             }
             return 0;
             break;
-        case XOR:
+        case XOR:; // Semicolon is intentional
             int out = 0;
             // Continually xor all the pins
             // Will be on if there's an odd number of pins
