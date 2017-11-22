@@ -19,6 +19,9 @@ int main(int argc, char * argv[]) {
     if (status) {
         printf("Error reading file\n");
         for (int i = 0; i < numNets; i++) {
+            for (int j = 0; j < nets[i].numPins; j++) {
+                uninitializePin(nets[i].pins[j]);
+            }
             free(nets[i].pins);
         }
         free(nets);
@@ -51,6 +54,9 @@ int main(int argc, char * argv[]) {
     }
 
     for (int i = 0; i < numNets; i++) {
+        for (int j = 0; j < nets[i].numPins; j++) {
+            uninitializePin(nets[i].pins[j]);
+        }
         free(nets[i].pins);
     }
     free(nets);

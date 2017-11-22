@@ -55,11 +55,19 @@ int uninitializePin(pin *pinToUninit) {
 }
 
 int getPinState(pin *pinToCheck) {
-    return 1;
-    // return read(pinToCheck.number)
+    if (pinToCheck->type != IN) {
+        return -1;
+    }
+
+    return gpio_get_value(pinToCheck->number);
 }
 
 int setPinState(pin *pinToSet, int state) {
+    if (pinToSet->type != OUT) {
+        return -1;
+    }
+
+    gpio_set_value(pinToSet->number, state);
     return 0;
 }
 

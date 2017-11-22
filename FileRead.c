@@ -309,9 +309,17 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
         return -1;
     }
 
-    for(int i = 0; i < *numNets; i++) {
+    for (int i = 0; i < *numNets; i++) {
         if ((*nets)[i].numPins == 0) {
             return -1;
+        }
+
+        for (int j = 0; j < (*nets)[i].numPins; i++) {
+            int status = initializePin((*nets)[i].numPins.pins[j]);
+            if (status < 0) {
+                free(pins);
+                return -1;
+            }
         }
     }
 
