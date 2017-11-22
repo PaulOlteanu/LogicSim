@@ -260,6 +260,7 @@ int readNets(char *filename, net **nets, int *numRows) {
 int initNets(net *nets, pin *pins, int numPins, int numNets) {
     for (int i = 0; i < numNets; i++) {
         nets[i].numPins = 0;
+        nets[i].previousState = 0;
         nets[i].pins = NULL;
     }
 

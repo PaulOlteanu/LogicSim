@@ -13,8 +13,11 @@ typedef struct pin {
     int netNumber; // Any number
 } pin;
 
+int getPinStateFromPinNumber(int pinNumber) {
+    return 1;
+}
 
-int pinState(pin *pinToCheck) {
+int getPinState(pin *pinToCheck) {
     return 0;
     // return read(pinToCheck.number)
 }

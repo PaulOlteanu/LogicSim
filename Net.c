@@ -9,14 +9,15 @@ typedef struct net {
     NET_TYPE type;
     pin *pins;
     int numPins;
+    int previousState;
 } net;
 
-int simulateNet(net *netToSim) {
+int getNetState(net *netToSim) {
     switch (netToSim->type) {
         case AND:
             // If any are off, return false
             for (int i = 0; i < netToSim->numPins; i++) {
-                if (pinState(&(netToSim->pins[i])) == 0) {
+                if (getPinState(&(netToSim->pins[i])) == 0) {
                     return 0;
                 }
             }
@@ -25,7 +26,7 @@ int simulateNet(net *netToSim) {
         case OR:
             // If any are on, return true
             for (int i = 0; i < netToSim->numPins; i++) {
-                if (pinState(&(netToSim->pins[i])) == 1) {
+                if (getPinState(&(netToSim->pins[i])) == 1) {
                     return 1;
                 }
             }
@@ -36,14 +37,14 @@ int simulateNet(net *netToSim) {
             // Continually xor all the pins
             // Will be on if there's an odd number of pins
             for (int i = 0; i < netToSim->numPins; i++) {
-                out ^= pinState(&(netToSim->pins[i]));
+                out ^= getPinState(&(netToSim->pins[i]));
             }
             return out;
             break;
         case NAND:
             // If any are off, return true
             for (int i = 0; i < netToSim->numPins; i++) {
-                if (pinState(&(netToSim->pins[i])) == 0) {
+                if (getPinState(&(netToSim->pins[i])) == 0) {
                     return 1;
                 }
             }
@@ -53,6 +54,10 @@ int simulateNet(net *netToSim) {
             return -1;
     }
     return 0;
+}
+
+int setNetOutput(net *netToSet, int state) {
+    return 1;
 }
 
 #endif
