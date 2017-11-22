@@ -57,7 +57,16 @@ int getNetState(net *netToSim) {
 }
 
 int setNetOutput(net *netToSet, int state) {
-    return 1;
+    for (int i = 0; i < netToSet->numPins; i++) {
+        if (netToSet->pins[i].type == OUT) {
+            int status = setPinState(&(netToSet->pins[i]), state);
+            if (status < 0) {
+                return -1;
+            }
+        }
+    }
+
+    return 0;
 }
 
 #endif

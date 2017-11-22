@@ -41,6 +41,7 @@ int main(int argc, char * argv[]) {
 
         for (int i = 0; i < numNets; i++) {
             int netOn = getNetState(&(nets[i]));
+            // TODO: Add logging
             setNetOutput(&(nets[i]), netOn);
         }
     }

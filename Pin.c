@@ -13,12 +13,24 @@ typedef struct pin {
     int netNumber; // Any number
 } pin;
 
+int initializePin(pin *pinToInit) {
+    return 0;
+}
+
+int uninitializePin(pint *pinToUninit) {
+    return 0;
+}
+
 int getPinStateFromPinNumber(int pinNumber) {
     return 1;
 }
 
 int getPinState(pin *pinToCheck) {
-    return 0;
+    return 1;
     // return read(pinToCheck.number)
+}
+
+int setPinState(pin *pinToSet, int state) {
+    return 0;
 }
 #endif
