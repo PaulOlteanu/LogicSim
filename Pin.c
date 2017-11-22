@@ -1,6 +1,9 @@
 #ifndef PIN_C_INCLUDE
 #define PIN_C_INCLUDE
 
+#include <stdlib.h>
+#include <ugpio/ugpio.h>
+
 #include "Net.c"
 
 typedef enum PIN_TYPE {IN, OUT} PIN_TYPE;
@@ -14,15 +17,41 @@ typedef struct pin {
 } pin;
 
 int initializePin(pin *pinToInit) {
+    int pinNumber = pinToInit->number;
+
+    // Check if it's already exported
+    int status = gpio_is_requested(pinNumber);
+    if (status) {
+        return -1;
+    }
+
+    // Export the pin
+    status = gpio_request(pinNumber, NULL);
+    if (status < 0) {
+        return -1;
+    }
+
+    // Set the pin type
+    if (pinToInit->type == IN) {
+        status = gpio_direction_input(pinNumber);
+        if (status < 0) {
+            return -1;
+        }
+    } else {
+        status = gpio_direction_output(pinNumber, 0);
+        if (status < 0) {
+            return -1;
+        }
+    }
     return 0;
 }
 
-int uninitializePin(pint *pinToUninit) {
+int uninitializePin(pin *pinToUninit) {
+    int status = gpio_free(pinToUninit->number);
+    if (status < 0) {
+        return -1;
+    }
     return 0;
-}
-
-int getPinStateFromPinNumber(int pinNumber) {
-    return 1;
 }
 
 int getPinState(pin *pinToCheck) {
@@ -33,4 +62,5 @@ int getPinState(pin *pinToCheck) {
 int setPinState(pin *pinToSet, int state) {
     return 0;
 }
+
 #endif

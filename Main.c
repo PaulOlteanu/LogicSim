@@ -5,7 +5,10 @@
 #include "Net.c"
 
 int main(int argc, char * argv[]) {
-    const int EXIT_PIN = 11;
+    pin EXIT_PIN;
+    EXIT_PIN.type = IN;
+    EXIT_PIN.number = 11;
+    EXIT_PIN.netNumber = -1;
     char *pinFile = "pinTest.csv";
     char *netFile = "netTest.csv";
 
@@ -34,7 +37,7 @@ int main(int argc, char * argv[]) {
     }
 
     while (1) {
-        if (getPinStateFromPinNumber(EXIT_PIN)) {
+        if (getPinState(EXIT_PIN)) {
             // Clear things
             return 0;
         }
@@ -43,6 +46,7 @@ int main(int argc, char * argv[]) {
             int netOn = getNetState(&(nets[i]));
             // TODO: Add logging
             setNetOutput(&(nets[i]), netOn);
+            nets[i].previousState = netOn;
         }
     }
 
