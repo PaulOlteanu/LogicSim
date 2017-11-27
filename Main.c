@@ -4,9 +4,10 @@
 #include "Pin.c"
 #include "Net.c"
 
-int main(int argc, char * argv[]) {
+int main(int argc, char **argv) {
     if (argc < 3) {
         printf("Usage: ./LogicSim pinFile netFile")
+        return -1;
     }
     char *pinFile = argv[1];
     char *netFile = argv[2];
@@ -46,16 +47,17 @@ int main(int argc, char * argv[]) {
         printf("\n");
     }
 
-<<<<<<< HEAD
     int done = 0;
     while (!done) {
         if (getPinState(&EXIT_PIN)) {
             done = 1;
         } else {
             for (int i = 0; i < numNets; i++) {
-                printf("NUMPINS: %d\n", nets[i].numPins);
                 int netOn = getNetState(&(nets[i]));
-                printf("NET: %d STATE: %d\n", nets[i].number, netOn);
+                if (netOn < 0) {
+                    printf("Invalid Pin Type\n");
+                    return -1;
+                }
                 // TODO: Add logging
                 setNetOutput(&(nets[i]), netOn);
                 nets[i].previousState = netOn;
