@@ -57,13 +57,31 @@ int readPins(char *filename, pin **pins, int *numRows) {
         targetNumber = 0;
         targetIndex = 0;
 
-        // ToDo: Check for whitespace in the middle of a number
+        int midNumber = 0;
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
             } else if (buffer[i] == ' ' || buffer[i] == '\t') {
-                continue;
+                if (midNumber) {
+                    for(int j = i; buffer[j] != '\0'; j++) {
+                        if (buffer[j] == ',') {
+                            break;
+                        } else if (buffer[j] == ' ' || buffer[j] == '\t') {
+                            continue;
+                        } else {
+                            fclose(file);
+                            return -1;
+                        }
+                    }
+                } else {
+                    continue;
+                }
             } else if (buffer[i] == ',') {
+                if (!midNumber) {
+                    fclose(file);
+                    return -1;
+                }
+
                 targetIndex++;
                 target[targetNumber][targetIndex] = '\0';
 
@@ -73,25 +91,32 @@ int readPins(char *filename, pin **pins, int *numRows) {
                     return -1;
                 }
 
+                midNumber = 0;
                 targetIndex = 0;
             } else if (buffer[i] < '0' || buffer[i] > '9') {
                 fclose(file);
                 return -1;
             } else {
+                midNumber = 1;
                 target[targetNumber][targetIndex] = buffer[i];
                 targetIndex++;
             }
         }
+        if (!midNumber) {
+            fclose(file);
+            return -1;
+        }
 
         int pinType = atoi(typeString);
         switch (pinType) {
-        case 0:
+            case 0:
             (*pins)[rowNumber].type = IN;
             break;
-        case 1:
+            case 1:
             (*pins)[rowNumber].type = OUT;
             break;
-        default:
+            default:
+            fclose(file);
             return -1;
         }
         (*pins)[rowNumber].number = atoi(numberString);
@@ -105,6 +130,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
             }
         }
         if (!valid) {
+            fclose(file);
             return -1;
         }
 
@@ -153,13 +179,31 @@ int readNets(char *filename, net **nets, int *numRows) {
         targetNumber = 0;
         targetIndex = 0;
 
-        // ToDo: Check for a space or tab in the middle of a number
+        int midNumber = 0;
         for(int i = 0; i < strlen(buffer); i++) {
             if (buffer[i] == '\n') {
                 break;
             } else if (buffer[i] == ' ' || buffer[i] == '\t') {
-                continue;
+                if (midNumber) {
+                    for(int j = i; buffer[j] != '\0'; j++) {
+                        if (buffer[j] == ',') {
+                            break;
+                        } else if (buffer[j] == ' ' || buffer[j] == '\t') {
+                            continue;
+                        } else {
+                            fclose(file);
+                            return -1;
+                        }
+                    }
+                } else {
+                    continue;
+                }
             } else if (buffer[i] == ',') {
+                if (!midNumber) {
+                    fclose(file);
+                    return -1;
+                }
+
                 targetIndex++;
                 target[targetNumber][targetIndex] = '\0';
 
@@ -169,31 +213,39 @@ int readNets(char *filename, net **nets, int *numRows) {
                     return -1;
                 }
 
+                midNumber = 0;
                 targetIndex = 0;
             } else if (buffer[i] < '0' || buffer[i] > '9') {
                 fclose(file);
                 return -1;
             } else {
+                midNumber = 1;
                 target[targetNumber][targetIndex] = buffer[i];
+                targetIndex++;
             }
+        }
+        if (!midNumber) {
+            fclose(file);
+            return -1;
         }
 
         int netType = atoi(typeString);
         switch (netType) {
             case 1:
-                (*nets)[rowNumber].type = AND;
-                break;
+            (*nets)[rowNumber].type = AND;
+            break;
             case 2:
-                (*nets)[rowNumber].type = OR;
-                break;
+            (*nets)[rowNumber].type = OR;
+            break;
             case 3:
-                (*nets)[rowNumber].type = XOR;
-                break;
+            (*nets)[rowNumber].type = XOR;
+            break;
             case 4:
-                (*nets)[rowNumber].type = NAND;
-                break;
+            (*nets)[rowNumber].type = NAND;
+            break;
             default:
-                return -1;
+            fclose(file);
+            return -1;
         }
         (*nets)[rowNumber].number = atoi(netString);
 
@@ -208,9 +260,10 @@ int readNets(char *filename, net **nets, int *numRows) {
     return 0;
 }
 
-int initNets(net *nets, pin *pins, int numPins, int numNets) {
+int initializeNets(net *nets, pin *pins, int numPins, int numNets) {
     for (int i = 0; i < numNets; i++) {
         nets[i].numPins = 0;
+        nets[i].previousState = 0;
         nets[i].pins = NULL;
     }
 
@@ -252,19 +305,43 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
     pin *pins;
     int pinStatus = readPins(pinFile, &pins, numPins);
     int netStatus = readNets(netFile, nets, numNets);
-    int initStatus = initNets(*nets, pins, *numPins, *numNets);
+    int initStatus = initializeNets(*nets, pins, *numPins, *numNets);
     // Todo: add different error codes for different errors
-    if (pinStatus || netStatus || initStatus) {
+
+    // 1x set
+    if (pinStatus) {
         free(pins);
-        return -1;
+        return pinStatus
     }
 
-    for(int i = 0; i < *numNets; i++) {
-        if ((*nets)[i].numPins == 0) {
+    // 2x set
+    if (netStatus) {
+        free(pins);
+        return netStatus;
+    }
+
+    // 3x set
+    if (initStatus) {
+        free(pins);
+        return initStatus;
+    }
+
+    // 1x set
+    for (int j = 0; j < *numPins; j++) {
+        int status = initializePin(&(pins[j]));
+        if (status < 0) {
+            free(pins);
             return -1;
         }
     }
-    // Todo: check for nets without pins
+
+    // 1x set
+    for (int i = 0; i < *numNets; i++) {
+        if ((*nets)[i].numPins == 0) {
+            free(pins);
+            return -1;
+        }
+    }
 
     free(pins);
     return 0;
