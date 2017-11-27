@@ -1,7 +1,7 @@
 # main compiler
 CC := gcc
 
-TARGET1 := Main
+TARGET1 := Main.out
 
 all: $(TARGET1)
 
