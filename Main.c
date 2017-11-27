@@ -3,14 +3,17 @@
 #include "FileRead.c"
 #include "Pin.c"
 #include "Net.c"
+#include "Logging.c"
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 4) {
         printf("Usage: ./LogicSim pinFile netFile")
         return -1;
     }
     char *pinFile = argv[1];
     char *netFile = argv[2];
+    char *logFile = argv[3];
+    fclose(fopen(logFile, "w"));
 
     pin EXIT_PIN;
     EXIT_PIN.type = IN;
@@ -21,6 +24,7 @@ int main(int argc, char **argv) {
     net *nets;
     int numPins, numNets;
 
+    // INITIALIZATION
     int status = initialize(pinFile, netFile, &numPins, &numNets, &nets);
     if (status) {
         // TODO: Switch on the status and log it
@@ -47,6 +51,7 @@ int main(int argc, char **argv) {
         printf("\n");
     }
 
+    // RUNNING
     int done = 0;
     while (!done) {
         if (getPinState(&EXIT_PIN)) {
@@ -65,7 +70,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Cleanup
+    // CLEANUP
     for (int i = 0; i < numNets; i++) {
         for (int j = 0; j < nets[i].numPins; j++) {
             uninitializePin(&(nets[i].pins[j]));
