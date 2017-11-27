@@ -341,6 +341,14 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
             free(pins);
             return -1;
         }
+
+        for (int j = 0; j < (*nets)[i].numPins; i++) {
+            int status = initializePin((*nets)[i].numPins.pins[j]);
+            if (status < 0) {
+                free(pins);
+                return -1;
+            }
+        }
     }
 
     free(pins);

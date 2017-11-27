@@ -46,6 +46,7 @@ int main(int argc, char * argv[]) {
         printf("\n");
     }
 
+<<<<<<< HEAD
     int done = 0;
     while (!done) {
         if (getPinState(&EXIT_PIN)) {
