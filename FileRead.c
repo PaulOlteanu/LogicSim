@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Net.c"
-#include "Pin.c"
+#include "FileRead.h"
+#include "Net.h"
+#include "Pin.h"
 
 int numberOfRows(FILE *file) {
     const int BUFFER_SIZE = 2048;
@@ -311,7 +312,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
     // 1x set
     if (pinStatus) {
         free(pins);
-        return pinStatus
+        return pinStatus;
     }
 
     // 2x set
@@ -343,7 +344,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
         }
 
         for (int j = 0; j < (*nets)[i].numPins; i++) {
-            int status = initializePin((*nets)[i].numPins.pins[j]);
+            int status = initializePin(&((*nets)[i].pins[j]));
             if (status < 0) {
                 free(pins);
                 return -1;

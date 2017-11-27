@@ -7,7 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
-typedef enum LEVEL {DEBUG, INFO, ERROR} LOG_LEVEL;
+#include "Logging.h"
 
 char *currentTimestamp() {
     time_t ltime;
@@ -23,6 +23,7 @@ int logMessage(const char *filename, LOG_LEVEL logLevel, const char* message) {
     if (!infile) {
         return -1;
     }
+
     switch (logLevel) {
         case DEBUG:
         fprintf(infile, "%-7s | %s | %s\n", "DEBUG", currentTimestamp(), message);

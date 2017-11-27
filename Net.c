@@ -1,16 +1,8 @@
 #ifndef NET_C_INCLUDE
 #define NET_C_INCLUDE
 
-#include "Pin.c"
-
-typedef enum NET_TYPE {AND, OR, XOR, NAND} NET_TYPE;
-typedef struct net {
-    int number; // Any number
-    NET_TYPE type;
-    pin *pins;
-    int numPins;
-    int previousState;
-} net;
+#include "Net.h"
+#include "Pin.h"
 
 int getNetState(net *netToSim) {
     switch (netToSim->type) {
@@ -71,19 +63,6 @@ int getNetState(net *netToSim) {
     }
 
     return -1;
-}
-
-int setNetOutput(net *netToSet, int state) {
-    for (int i = 0; i < netToSet->numPins; i++) {
-        if (netToSet->pins[i].type == OUT) {
-            int status = setPinState(&(netToSet->pins[i]), state);
-            if (status < 0) {
-                return -1;
-            }
-        }
-    }
-
-    return 0;
 }
 
 int setNetOutput(net *netToSet, int state) {

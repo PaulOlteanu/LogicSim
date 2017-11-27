@@ -1,4 +1,1 @@
-Switch away from atoi
-Move constants in main to argv
-Add function to uninitialize pins
 Add header files for everything
