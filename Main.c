@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
     // INITIALIZATION
     int status = initialize(pinFile, netFile, &numPins, &numNets, &nets, logFile);
     if (status) {
-        // TODO: Switch on the status and log it
         printf("Error reading file\n");
         for (int i = 0; i < numNets; i++) {
             for (int j = 0; j < nets[i].numPins; j++) {

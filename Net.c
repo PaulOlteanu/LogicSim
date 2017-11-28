@@ -2,7 +2,8 @@
 #define NET_C_INCLUDE
 
 #include "Net.h"
-#include "Pin.h"
+#include "Pin.c"
+#include "Logging.c"
 
 int getNetState(net *netToSim) {
     switch (netToSim->type) {

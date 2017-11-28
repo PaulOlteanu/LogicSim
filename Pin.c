@@ -5,7 +5,7 @@
 #include <ugpio/ugpio.h>
 
 #include "Pin.h"
-#include "Logging.h"
+#include "Logging.c"
 
 int initializePin(pin *pinToInit, char *logFile) {
     char logMessage[2048];
