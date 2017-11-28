@@ -65,7 +65,10 @@ int getNetState(net *netToSim) {
     return -1;
 }
 
-int setNetOutput(net *netToSet, int state) {
+int setNetOutput(net *netToSet, int state, char *logFile) {
+    char logMessage[2048];
+    sprintf(logMessage, "Setting net %d to %d\n", netToSet->number, state);
+    logMessage(logFile, DEBUG, logMessage);
     for (int i = 0; i < netToSet->numPins; i++) {
         if (netToSet->pins[i].type == OUT) {
             int status = setPinState(&(netToSet->pins[i]), state);

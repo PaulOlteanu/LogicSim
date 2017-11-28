@@ -8,6 +8,7 @@
 #include "FileRead.h"
 #include "Net.h"
 #include "Pin.h"
+#include "Logging.h"
 
 int numberOfRows(FILE *file) {
     const int BUFFER_SIZE = 2048;
@@ -24,9 +25,10 @@ int numberOfRows(FILE *file) {
     return numRows;
 }
 
-int readPins(char *filename, pin **pins, int *numRows) {
+int readPins(char *filename, pin **pins, int *numRows, char * logFile) {
     FILE *file = fopen(filename, "r");
     if (!file) {
+        logMessage(logFile, ERROR, "Could not open pin file\n");
         return -1;
     }
 
@@ -71,6 +73,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
                             continue;
                         } else {
                             fclose(file);
+                            logMessage(logFile, ERROR, "Invalid character in pin file\n");
                             return -1;
                         }
                     }
@@ -80,6 +83,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
             } else if (buffer[i] == ',') {
                 if (!midNumber) {
                     fclose(file);
+                    logMessage(logFile, ERROR, "Invalid character in pin file\n");
                     return -1;
                 }
 
@@ -89,6 +93,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
                 targetNumber++;
                 if (targetNumber > 2) {
                     fclose(file);
+                    logMessage(logFile, ERROR, "Invalid character in pin file\n");
                     return -1;
                 }
 
@@ -96,6 +101,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
                 targetIndex = 0;
             } else if (buffer[i] < '0' || buffer[i] > '9') {
                 fclose(file);
+                logMessage(logFile, ERROR, "Invalid character in pin file\n");
                 return -1;
             } else {
                 midNumber = 1;
@@ -105,6 +111,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
         }
         if (!midNumber) {
             fclose(file);
+            logMessage(logFile, ERROR, "Invalid character in pin file\n");
             return -1;
         }
 
@@ -118,6 +125,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
             break;
             default:
             fclose(file);
+            logMessage(logFile, ERROR, "Invalid character in pin file\n");
             return -1;
         }
         (*pins)[rowNumber].number = atoi(numberString);
@@ -132,6 +140,7 @@ int readPins(char *filename, pin **pins, int *numRows) {
         }
         if (!valid) {
             fclose(file);
+            logMessage(logFile, ERROR, "Invalid pin number in pin file\n");
             return -1;
         }
 
@@ -149,9 +158,10 @@ int readPins(char *filename, pin **pins, int *numRows) {
     return 0;
 }
 
-int readNets(char *filename, net **nets, int *numRows) {
+int readNets(char *filename, net **nets, int *numRows, char *logFile) {
     FILE *file = fopen(filename, "r");
     if (!file) {
+        logMessage(logFile, ERROR, "Could not open net file\n");
         return -1;
     }
 
@@ -193,6 +203,7 @@ int readNets(char *filename, net **nets, int *numRows) {
                             continue;
                         } else {
                             fclose(file);
+                            logMessage(logFile, ERROR, "Invalid character in net file\n");
                             return -1;
                         }
                     }
@@ -202,6 +213,7 @@ int readNets(char *filename, net **nets, int *numRows) {
             } else if (buffer[i] == ',') {
                 if (!midNumber) {
                     fclose(file);
+                    logMessage(logFile, ERROR, "Invalid character in net file\n");
                     return -1;
                 }
 
@@ -211,6 +223,7 @@ int readNets(char *filename, net **nets, int *numRows) {
                 targetNumber++;
                 if (targetNumber > 1) {
                     fclose(file);
+                    logMessage(logFile, ERROR, "Invalid character in net file\n");
                     return -1;
                 }
 
@@ -218,6 +231,7 @@ int readNets(char *filename, net **nets, int *numRows) {
                 targetIndex = 0;
             } else if (buffer[i] < '0' || buffer[i] > '9') {
                 fclose(file);
+                logMessage(logFile, ERROR, "Invalid character in net file\n");
                 return -1;
             } else {
                 midNumber = 1;
@@ -227,6 +241,7 @@ int readNets(char *filename, net **nets, int *numRows) {
         }
         if (!midNumber) {
             fclose(file);
+            logMessage(logFile, ERROR, "Invalid character in net file\n");
             return -1;
         }
 
@@ -246,6 +261,7 @@ int readNets(char *filename, net **nets, int *numRows) {
             break;
             default:
             fclose(file);
+            logMessage(logFile, ERROR, "Invalid character in net file\n");
             return -1;
         }
         (*nets)[rowNumber].number = atoi(netString);
@@ -261,7 +277,7 @@ int readNets(char *filename, net **nets, int *numRows) {
     return 0;
 }
 
-int initializeNets(net *nets, pin *pins, int numPins, int numNets) {
+int initializeNets(net *nets, pin *pins, int numPins, int numNets, char *logFile) {
     for (int i = 0; i < numNets; i++) {
         nets[i].numPins = 0;
         nets[i].previousState = 0;
@@ -295,6 +311,7 @@ int initializeNets(net *nets, pin *pins, int numPins, int numNets) {
         }
 
         if (!found) {
+            logMessage(logFile, ERROR, "Non-existent net used in pin file\n");
             return -1;
         }
     }
@@ -302,51 +319,47 @@ int initializeNets(net *nets, pin *pins, int numPins, int numNets) {
     return 0;
 }
 
-int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **nets) {
+int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **nets, char *logFile) {
     pin *pins;
-    int pinStatus = readPins(pinFile, &pins, numPins);
-    int netStatus = readNets(netFile, nets, numNets);
-    int initStatus = initializeNets(*nets, pins, *numPins, *numNets);
-    // Todo: add different error codes for different errors
+    int pinStatus = readPins(pinFile, &pins, numPins, logFile);
+    int netStatus = readNets(netFile, nets, numNets, logFile);
+    int initStatus = initializeNets(*nets, pins, *numPins, *numNets, logFile);
 
-    // 1x set
     if (pinStatus) {
         free(pins);
         return pinStatus;
     }
 
-    // 2x set
     if (netStatus) {
         free(pins);
         return netStatus;
     }
 
-    // 3x set
     if (initStatus) {
         free(pins);
         return initStatus;
     }
 
-    // 1x set
     for (int j = 0; j < *numPins; j++) {
-        int status = initializePin(&(pins[j]));
+        int status = initializePin(&(pins[j]), logFile);
         if (status < 0) {
             free(pins);
             return -1;
         }
     }
 
-    // 1x set
     for (int i = 0; i < *numNets; i++) {
         if ((*nets)[i].numPins == 0) {
             free(pins);
+            logMessage(logFile, ERROR, "Net with no pins detected\n");
             return -1;
         }
 
         for (int j = 0; j < (*nets)[i].numPins; i++) {
-            int status = initializePin(&((*nets)[i].pins[j]));
+            int status = initializePin(&((*nets)[i].pins[j]), logFile);
             if (status < 0) {
                 free(pins);
+                logMessage(logFile, ERROR, "Could not initialize pin\n");
                 return -1;
             }
         }

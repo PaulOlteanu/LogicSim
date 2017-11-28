@@ -11,9 +11,9 @@ typedef struct pin {
     int netNumber; // Any number
 } pin;
 
-int initializePin(pin *pinToInit);
-int uninitializePin(pin *pinToUninit);
-int getPinState(pin *pinToCheck);
-int setPinState(pin *pinToSet, int state);
+int initializePin(pin *pinToInit, char *logFile);
+int uninitializePin(pin *pinToUninit, char *logFile);
+int getPinState(pin *pinToCheck, char *logFile);
+int setPinState(pin *pinToSet, int state, char *logFile);
 
 #endif

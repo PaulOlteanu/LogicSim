@@ -19,13 +19,13 @@ int main(int argc, char **argv) {
     EXIT_PIN.type = IN;
     EXIT_PIN.number = 11;
     EXIT_PIN.netNumber = -1;
-    initializePin(&EXIT_PIN);
+    initializePin(&EXIT_PIN, logFile);
 
     net *nets;
     int numPins, numNets;
 
     // INITIALIZATION
-    int status = initialize(pinFile, netFile, &numPins, &numNets, &nets);
+    int status = initialize(pinFile, netFile, &numPins, &numNets, &nets, logFile);
     if (status) {
         // TODO: Switch on the status and log it
         printf("Error reading file\n");
