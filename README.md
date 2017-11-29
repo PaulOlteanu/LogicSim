@@ -20,7 +20,7 @@ Pin Type, Pin Number, Net Number
 
 Valid Pin Numbers:
 
-0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 45, 46
+0, 1, 2, 3, 4, 5, 18, 19, 45, 46
 
 TODO: Insert pinout picture here
 
