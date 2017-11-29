@@ -13,7 +13,7 @@ typedef struct net {
     int previousState;
 } net;
 
-int getNetState(net *netToSim);
-int setNetOutput(net *netToSet, int state);
+int getNetState(net *netToSim, char *logFile, int debugMode);
+int setNetOutput(net *netToSet, int state, char *logFile, int debugMode);
 
 #endif

@@ -7,10 +7,12 @@
 #include "Pin.h"
 #include "Logging.c"
 
-int initializePin(pin *pinToInit, char *logFile) {
-    char logMessage[2048];
-    sprintf(logMessage, "Initializing pin: %d\n", pinToInit->number);
-    logMessage(logFile, INFO, logMessage);
+int initializePin(pin *pinToInit, char *logFile, int debugMode) {
+    if (debugMode) {
+        char message[2048];
+        sprintf(message, "Initializing pin: %d", pinToInit->number);
+        logMessage(logFile, INFO, message);
+    }
     int pinNumber = pinToInit->number;
 
     // Check if it's already exported
@@ -39,7 +41,7 @@ int initializePin(pin *pinToInit, char *logFile) {
     return 0;
 }
 
-int uninitializePin(pin *pinToUninit, char *logFile) {
+int uninitializePin(pin *pinToUninit, char *logFile, int debugMode) {
     int status = gpio_free(pinToUninit->number);
     if (status < 0) {
         logMessage(logFile, ERROR, "Failed to uninitialize pin");
@@ -48,29 +50,33 @@ int uninitializePin(pin *pinToUninit, char *logFile) {
     return 0;
 }
 
-int getPinState(pin *pinToCheck, char *logFile) {
+int getPinState(pin *pinToCheck, char *logFile, int debugMode) {
     if (pinToCheck->type != IN) {
         logMessage(logFile, ERROR, "Attempted to get state of output pin");
         return -1;
     }
 
     int pinState = gpio_get_value(pinToCheck->number);
-    char logMessage[2048];
-    sprintf(logMessage, "Pin number %d's state: \n", pinToInit->number, pinState);
-    logMessage(logFile, DEBUG , logMessage);
+    if (debugMode) {
+        char message[2048];
+        sprintf(message, "Pin number %d's state: %d", pinToCheck->number, pinState);
+        logMessage(logFile, DEBUG , message);
+    }
     return pinState;
 }
 
-int setPinState(pin *pinToSet, int state, char *logFile) {
+int setPinState(pin *pinToSet, int state, char *logFile, int debugMode) {
     if (pinToSet->type != OUT) {
         logMessage(logFile, ERROR, "Attempted to set input pin");
         return -1;
     }
 
     gpio_set_value(pinToSet->number, state);
-    char logMessage[2048];
-    sprintf(logMessage, "Setting pin %d to %d\n", pinToInit->number, state);
-    logMessage(logFile, DEBUG, logMessage);
+    if (debugMode) {
+        char message[2048];
+        sprintf(message, "Setting pin %d to %d", pinToSet->number, state);
+        logMessage(logFile, DEBUG, message);
+    }
     return 0;
 }
 

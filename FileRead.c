@@ -25,7 +25,7 @@ int numberOfRows(FILE *file) {
     return numRows;
 }
 
-int readPins(char *filename, pin **pins, int *numRows, char * logFile) {
+int readPins(char *filename, pin **pins, int *numRows, char *logFile, int debugMode) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         logMessage(logFile, ERROR, "Could not open pin file\n");
@@ -158,7 +158,7 @@ int readPins(char *filename, pin **pins, int *numRows, char * logFile) {
     return 0;
 }
 
-int readNets(char *filename, net **nets, int *numRows, char *logFile) {
+int readNets(char *filename, net **nets, int *numRows, char *logFile, int debugMode) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         logMessage(logFile, ERROR, "Could not open net file\n");
@@ -277,7 +277,7 @@ int readNets(char *filename, net **nets, int *numRows, char *logFile) {
     return 0;
 }
 
-int initializeNets(net *nets, pin *pins, int numPins, int numNets, char *logFile) {
+int initializeNets(net *nets, pin *pins, int numPins, int numNets, char *logFile, int debugMode) {
     for (int i = 0; i < numNets; i++) {
         nets[i].numPins = 0;
         nets[i].previousState = 0;
@@ -319,11 +319,11 @@ int initializeNets(net *nets, pin *pins, int numPins, int numNets, char *logFile
     return 0;
 }
 
-int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **nets, char *logFile) {
+int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **nets, char *logFile, int debugMode) {
     pin *pins;
-    int pinStatus = readPins(pinFile, &pins, numPins, logFile);
-    int netStatus = readNets(netFile, nets, numNets, logFile);
-    int initStatus = initializeNets(*nets, pins, *numPins, *numNets, logFile);
+    int pinStatus = readPins(pinFile, &pins, numPins, logFile, debugMode);
+    int netStatus = readNets(netFile, nets, numNets, logFile, debugMode);
+    int initStatus = initializeNets(*nets, pins, *numPins, *numNets, logFile, debugMode);
 
     if (pinStatus) {
         free(pins);
@@ -341,7 +341,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
     }
 
     for (int j = 0; j < *numPins; j++) {
-        int status = initializePin(&(pins[j]), logFile);
+        int status = initializePin(&(pins[j]), logFile, debugMode);
         if (status < 0) {
             free(pins);
             return -1;
@@ -356,7 +356,7 @@ int initialize(char *pinFile, char *netFile, int *numPins, int *numNets, net **n
         }
 
         for (int j = 0; j < (*nets)[i].numPins; i++) {
-            int status = initializePin(&((*nets)[i].pins[j]), logFile);
+            int status = initializePin(&((*nets)[i].pins[j]), logFile, debugMode);
             if (status < 0) {
                 free(pins);
                 logMessage(logFile, ERROR, "Could not initialize pin\n");
